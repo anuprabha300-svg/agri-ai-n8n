@@ -1,0 +1,181 @@
+{
+  "name": "Crop disease detection testing",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Upload Crop Image",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload plant image",
+              "fieldType": "file"
+            },
+            {
+              "fieldLabel": "Plant name"
+            },
+            {
+              "fieldLabel": "Symptoms"
+            },
+            {
+              "fieldLabel": "Locations of symptoms"
+            },
+            {
+              "fieldLabel": "How long ago did symptoms appear "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        96,
+        128
+      ],
+      "id": "2afe6aff-43b3-47bb-8226-ac02665f497d",
+      "name": "On form submission1",
+      "webhookId": "2b239b3a-6baf-4fa9-9fc5-5c73adbeaf4d"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AQ.Ab8RN6INXv_N9m_XlwHmpzutEqD8ha8Rl4u9ttEkvep7raVcFw",
+        "sendBody": true,
+        "contentType": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents[0].parts[0].text",
+              "value": "=You are a crop disease expert. A farmer has a {{ $('On form submission1').item.json['Plant name '] }} plant with {{ $('On form submission1').item.json['Symptoms '] }}. Symptoms on {{ $('On form submission1').item.json['Location of symptoms '] }} for {{ $('On form submission1').item.json['How long ago did symptoms appear'] }}. Give me ONLY: 1) Disease name 2) Cause 3) Treatment and exact medication with dosage. Be direct"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        528,
+        128
+      ],
+      "id": "4ea8a991-7b4f-4d96-9e4f-3a70498a14ab",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst text = response.candidates[0].content.parts[0].text;\n\nreturn [{\n  json: {\n    result: text\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        128
+      ],
+      "id": "74b678e6-d549-4adb-9a5b-989d4e722b29",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Crop Disease Analysis Result",
+        "completionMessage": "={{ $json.result }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1008,
+        128
+      ],
+      "id": "40476d0b-1e45-47cc-b138-2ad4c6abe3a2",
+      "name": "Form1",
+      "webhookId": "42c858b9-4d7a-42fb-b4ee-b8a6f73b88fa"
+    },
+    {
+      "parameters": {
+        "content": "🌱 AI Crop Disease Detection\n\nBuilt using n8n + Google Gemini AI\n\nDetects crop diseases based on plant symptoms using AI automation.\nAn automated workflow using n8n and Gemini AI to identify crop diseases from symptoms.",
+        "height": 176,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "d2380a6f-cc76-4f1e-9563-e353960c4ab9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst binaryKey = Object.keys(item.binary)[0];\nconst binary = item.binary[binaryKey];\nreturn [{ json: { imageBase64: binary.data, mimeType: binary.mimeType } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        128
+      ],
+      "id": "c30120a3-7ba5-4b1b-aaad-a27b5fd90b46",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Form1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9d8b7419-acef-47b4-8276-336e014e7bee",
+  "meta": {
+    "instanceId": "4d86eaa0adff22381a8dbf3becbe2a23f49e9dd8acd570c65222bb418a41fae7"
+  },
+  "id": "eche8lrBTqHG6Bkc",
+  "tags": []
+}
